@@ -107,6 +107,9 @@ function showToast(t){toast.textContent=t;toast.style.display="block";setTimeout
   <input id="masterEmail" type="email" placeholder="Your email" style="width:95%;padding:10px;margin-bottom:10px;">
   <input id="masterPassword" type="password" placeholder="Your password" style="width:95%;padding:10px;margin-bottom:10px;">
   <button onclick="masterLogin()" style="padding:12px;">Sign In</button>
+    <button onclick="resetMasterPassword()" style=padding:12px;margin-top:8px;">
+    Forgot Password?
+    </button>
   <div id="masterControls" style="display:none;margin-top:20px;">
     <p>Current clue: <strong id="clueNumber">—</strong></p>
     <button onclick="releaseNextClue()" style="padding:12px;">🔓 Release Next Clue</button>
@@ -126,6 +129,22 @@ async function masterLogin() {
     await loadClueNumber();
   } catch (e) {
     document.getElementById('masterMessage').textContent = 'Sign-in failed. Check your email and password.';
+  }
+}
+  async function resetMasterPassword() {
+  const email = document.getElementById('masterEmail').value.trim();
+  if (!email) {
+    document.getElementById('masterMessage').textContent =
+      'Please enter your email address first.';
+    return;
+  }
+  try {
+    await firebase.auth().sendPasswordResetEmail(email);
+    document.getElementById('masterMessage').textContent =
+      'Password reset email sent! Check your inbox.';
+  } catch (e) {
+    document.getElementById('masterMessage').textContent =
+      'Could not send reset email: ' + e.message;
   }
 }
 async function loadClueNumber() {
