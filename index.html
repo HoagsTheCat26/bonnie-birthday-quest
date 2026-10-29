@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bonnie's 75th Birthday Quest</title>
+<style>
+:root{--orange:#f28c28;--gold:#ffd166;--ink:#19151b;--cream:#fff8ed;--purple:#4b285f}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at top,#5a326e,#19151b 65%);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--cream);min-height:100vh}
+.app{max-width:480px;margin:auto;min-height:100vh;padding:22px 18px 40px}.pumpkins{text-align:center;font-size:38px;letter-spacing:5px}
+.card{background:rgba(255,248,237,.97);color:var(--ink);border-radius:28px;padding:25px 22px;margin-top:18px;box-shadow:0 16px 45px rgba(0,0,0,.35)}
+h1{font-size:34px;line-height:1.05;margin:8px 0 10px;color:var(--purple)} h2{font-size:25px;color:var(--purple);margin:4px 0 10px}
+.subtitle{font-size:17px;line-height:1.5}.badge{display:inline-block;background:var(--gold);padding:7px 12px;border-radius:999px;font-weight:800;font-size:13px}
+.clue{font-size:18px;line-height:1.55;background:#fff1d9;border-left:5px solid var(--orange);padding:16px;border-radius:14px;margin:18px 0}
+.mission{font-weight:800;font-size:17px}.btn{display:block;width:100%;border:0;border-radius:16px;padding:15px 16px;margin-top:13px;font-size:17px;font-weight:800;cursor:pointer;background:var(--orange);color:white}.btn.secondary{background:#eee1f2;color:var(--purple)}.btn.dark{background:var(--purple)}
+.progress{height:9px;background:#eadfd2;border-radius:99px;overflow:hidden;margin:16px 0}.bar{height:100%;background:var(--orange);width:25%;transition:.3s}
+.hidden{display:none}.tiny{text-align:center;color:#6d596e;font-size:13px;margin-top:14px}.admin{margin-top:28px}
+.admin button{font-size:13px;padding:10px}.status{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #eadfd2}.locked{opacity:.45}.complete{color:#32834d;font-weight:800}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#19151b;color:white;padding:12px 17px;border-radius:999px;display:none;box-shadow:0 8px 25px #0008}
+.photo-note{font-size:14px;color:#6d596e;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="pumpkins">🎃 🥳 🎃</div>
+  <section id="welcome" class="card">
+    <span class="badge">A VERY SPECIAL 75TH BIRTHDAY</span>
+    <h1>Bonnie's<br>Birthday Quest</h1>
+    <p class="subtitle">A Halloween adventure filled with memories, laughs, a little mischief… and a very sweet finish.</p>
+    <div class="clue"><b>Bonnie, your mission:</b><br>Follow the clues, complete each silly little challenge, and have fun. Your birthday adventure starts NOW!</div>
+    <button class="btn" onclick="startQuest()">🎃 Begin the Quest</button>
+    <p class="tiny">Created with love by Stacey ❤️</p>
+  </section>
+
+  <section id="quest" class="card hidden">
+    <span id="badge" class="badge"></span>
+    <h2 id="title"></h2>
+    <div class="progress"><div id="bar" class="bar"></div></div>
+    <div id="clue" class="clue"></div>
+    <div id="mission" class="mission"></div>
+    <p class="photo-note">📸 Take your selfie, then send it to Stacey!</p>
+    <button id="complete" class="btn" onclick="completeStop()">📸 We Did It!</button>
+    <button id="next" class="btn dark hidden" onclick="nextStop()">🔓 Reveal Next Clue</button>
+  </section>
+
+  <section id="final" class="card hidden">
+    <div style="text-align:center;font-size:55px">🎉🎃🍫🍦🎂</div>
+    <h1 style="text-align:center">QUEST COMPLETE!</h1>
+    <p class="subtitle" style="text-align:center"><b>Happy 75th Birthday, Bonnie!</b></p>
+    <div class="clue">You laughed. You hunted. You made memories. And you completed your birthday adventure!</div>
+    <p style="font-size:18px;line-height:1.55;text-align:center">The best part of this day isn't where you went — it's the people and memories you collected along the way.</p>
+    <p style="text-align:center;font-size:22px">❤️ Love, Stacey</p>
+  </section>
+
+  <section class="admin card">
+    <h2 style="font-size:18px">🎃 Quest Master</h2>
+    <p class="tiny" style="margin-top:0">For Stacey: use this to reset the demo on your phone.</p>
+    <button class="btn secondary" onclick="resetQuest()">Reset Quest</button>
+  </section>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+const stops=[
+ {badge:"STOP 1 • MEMORY LANE",title:"Camelot",clue:"Where friends and memories call home, where so many familiar faces roam. Your birthday adventure starts right here!",mission:"🏠 Go to Camelot and take a selfie together in front of the condo/community."},
+ {badge:"STOP 2 • TREASURE HUNT",title:"Goodwill",clue:"One person's treasure is another person's delight. Find something funny, weird or completely ridiculous!",mission:"🛍️ Find the funniest thing you can. Take a selfie with it. You don't even have to buy it! 😂"},
+ {badge:"STOP 3 • BIRTHDAY TOAST",title:"FINS",clue:"You've laughed, you've hunted, and you've made it this far. Now it's time to sit down, relax and raise a glass.",mission:"🥂 Have a birthday toast together. Take a selfie and celebrate 75 years of Bonnie!"},
+ {badge:"STOP 4 • SWEET FINISH",title:"Your Final Surprise",clue:"You've earned something SWEET. Follow Stacey's final clue to discover where chocolate, ice cream and birthday wishes come together.",mission:"🍦 Go to the final dessert destination, choose something delicious, and take one last birthday selfie!"}
+];
+let current=0, done=[];
+function startQuest(){current=0;showStop()}
+function showStop(){
+ document.getElementById('welcome').classList.add('hidden');
+ document.getElementById('final').classList.add('hidden');
+ document.getElementById('quest').classList.remove('hidden');
+ const s=stops[current];
+ badge.textContent=s.badge; title.textContent=s.title; clue.innerHTML=s.clue; mission.innerHTML=s.mission;
+ bar.style.width=((current+1)/stops.length*100)+"%";
+ complete.classList.remove('hidden'); next.classList.add('hidden');
+}
+function completeStop(){
+ done[current]=true; complete.classList.add('hidden');
+ if(current<stops.length-1){next.classList.remove('hidden');showToast("Mission complete! 🎉")}
+ else {showToast("You did it! 🎂");setTimeout(()=>{quest.classList.add('hidden');final.classList.remove('hidden')},700)}
+}
+function nextStop(){current++;showStop()}
+function resetQuest(){current=0;done=[];final.classList.add('hidden');quest.classList.add('hidden');welcome.classList.remove('hidden');showToast("Quest reset!")}
+function showToast(t){toast.textContent=t;toast.style.display="block";setTimeout(()=>toast.style.display="none",1800)}
+</script>
+</body>
+</html>
