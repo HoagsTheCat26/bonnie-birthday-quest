@@ -70,8 +70,8 @@ projectID: "bonnie-birthday-quest",
  appId: "1:21269898300:web:1e518b75e90c9a09c68f39"
 };
 firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db  = firebase.firestore();
+  window.auth = firebase.auth();
+  window.db  = firebase.firestore();
 </script>
 
 <script>
