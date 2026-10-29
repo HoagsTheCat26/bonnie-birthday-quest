@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+base<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -61,7 +61,13 @@ h1{font-size:34px;line-height:1.05;margin:8px 0 10px;color:var(--purple)} h2{fon
 <div id="toast" class="toast"></div>
 
 <script type="module">
-const stops=[
+const firebaseConfig = {
+ apiKey: "AIzaSyCVAbwDV1Tb_yvQr3YanP4CA9_Z0k9cfk8",
+ authDomain: "bonnie-birthday-quest.firebaseapp.com",
+ databaseURL: "https://bonnie-birthday-quest-default-rtdb.firebaseio.com",
+ appId: "1:21269898300:web:1e518b75e90c9a09c68f39"
+};
+  stops=[
  {badge:"STOP 1 • MEMORY LANE",title:"Camelot",clue:"Where friends and memories call home, where so many familiar faces roam. Your birthday adventure starts right here!",mission:"🏠 Go to Camelot and take a selfie with at least two people."},
  {badge:"STOP 2 • TREASURE HUNT",title:"Goodwill",clue:"One person's treasure is another person's delight. Find something funny, weird or completely ridiculous!",mission:"🛍️ Find the funniest thing you can. Take a selfie with it. You don't even have to buy it! 😂"},
  {badge:"STOP 3 • BIRTHDAY MEAL",title:"Twisted Lobster",clue:"You've laughed, you've hunted, and you've made it this far. Now it's time to sit down, relax and enjoy.",mission:"🥂 Have a birthday toast together. Have the waitress take a picture to celebrate 75 years of Bonnie!"},
