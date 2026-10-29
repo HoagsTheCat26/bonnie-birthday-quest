@@ -130,8 +130,8 @@ async function masterLogin() {
   } catch (e) {
     document.getElementById('masterMessage').textContent = 'Sign-in failed. Check your email and password.';
   }
-}
-  async function resetMasterPassword() {
+}async function resetMasterPassword() {
+    alert (typeof firebase); 
   const email = document.getElementById('masterEmail').value.trim();
   if (!email) {
     document.getElementById('masterMessage').textContent =
