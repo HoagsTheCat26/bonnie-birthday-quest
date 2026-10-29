@@ -38,7 +38,7 @@ h1{font-size:34px;line-height:1.05;margin:8px 0 10px;color:var(--purple)} h2{fon
     <div class="progress"><div id="bar" class="bar"></div></div>
     <div id="clue" class="clue"></div>
     <div id="mission" class="mission"></div>
-    <p class="photo-note">📸 Take your selfie, then send it to Stacey!</p>
+    <p class="photo-note">📸 Take your selfie with one or both cats, then send it to Stacey!</p>
     <button id="complete" class="btn" onclick="completeStop()">📸 We Did It!</button>
     <button id="next" class="btn dark hidden" onclick="nextStop()">🔓 Reveal Next Clue</button>
   </section>
@@ -48,7 +48,7 @@ h1{font-size:34px;line-height:1.05;margin:8px 0 10px;color:var(--purple)} h2{fon
     <h1 style="text-align:center">QUEST COMPLETE!</h1>
     <p class="subtitle" style="text-align:center"><b>Happy 75th Birthday, Bonnie!</b></p>
     <div class="clue">You laughed. You hunted. You made memories. And you completed your birthday adventure!</div>
-    <p style="font-size:18px;line-height:1.55;text-align:center">The best part of this day isn't where you went — it's the people and memories you collected along the way.</p>
+    <p style="font-size:18px;line-height:1.55;text-align:center">The best part of this day isn't where you went — it's the memory you made of something you have never done before.</p>
     <p style="text-align:center;font-size:22px">❤️ Love, Stacey</p>
   </section>
 
@@ -62,10 +62,10 @@ h1{font-size:34px;line-height:1.05;margin:8px 0 10px;color:var(--purple)} h2{fon
 
 <script>
 const stops=[
- {badge:"STOP 1 • MEMORY LANE",title:"Camelot",clue:"Where friends and memories call home, where so many familiar faces roam. Your birthday adventure starts right here!",mission:"🏠 Go to Camelot and take a selfie together in front of the condo/community."},
+ {badge:"STOP 1 • MEMORY LANE",title:"Camelot",clue:"Where friends and memories call home, where so many familiar faces roam. Your birthday adventure starts right here!",mission:"🏠 Go to Camelot and take a selfie with at least two people."},
  {badge:"STOP 2 • TREASURE HUNT",title:"Goodwill",clue:"One person's treasure is another person's delight. Find something funny, weird or completely ridiculous!",mission:"🛍️ Find the funniest thing you can. Take a selfie with it. You don't even have to buy it! 😂"},
- {badge:"STOP 3 • BIRTHDAY TOAST",title:"FINS",clue:"You've laughed, you've hunted, and you've made it this far. Now it's time to sit down, relax and raise a glass.",mission:"🥂 Have a birthday toast together. Take a selfie and celebrate 75 years of Bonnie!"},
- {badge:"STOP 4 • SWEET FINISH",title:"Your Final Surprise",clue:"You've earned something SWEET. Follow Stacey's final clue to discover where chocolate, ice cream and birthday wishes come together.",mission:"🍦 Go to the final dessert destination, choose something delicious, and take one last birthday selfie!"}
+ {badge:"STOP 3 • BIRTHDAY MEAL",title:"Twisted Lobster",clue:"You've laughed, you've hunted, and you've made it this far. Now it's time to sit down, relax and enjoy.",mission:"🥂 Have a birthday toast together. Have the waitress take a picture to celebrate 75 years of Bonnie!"},
+ {badge:"STOP 4 • SWEET FINISH",title:"Your Final Stop",clue:"You've earned something SWEET. Your choice of what and where you get dessert.",mission:"🍦 Go your final dessert destination, choose something delicious, and take one last birthday selfie!"}
 ];
 let current=0, done=[];
 function startQuest(){current=0;showStop()}
