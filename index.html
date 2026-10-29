@@ -1,4 +1,4 @@
-base<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -14,15 +14,19 @@ h1{font-size:34px;line-height:1.05;margin:8px 0 10px;color:var(--purple)} h2{fon
 .clue{font-size:18px;line-height:1.55;background:#fff1d9;border-left:5px solid var(--orange);padding:16px;border-radius:14px;margin:18px 0}
 .mission{font-weight:800;font-size:17px}.btn{display:block;width:100%;border:0;border-radius:16px;padding:15px 16px;margin-top:13px;font-size:17px;font-weight:800;cursor:pointer;background:var(--orange);color:white}.btn.secondary{background:#eee1f2;color:var(--purple)}.btn.dark{background:var(--purple)}
 .progress{height:9px;background:#eadfd2;border-radius:99px;overflow:hidden;margin:16px 0}.bar{height:100%;background:var(--orange);width:25%;transition:.3s}
-.hidden{display:none}.tiny{text-align:center;color:#6d596e;font-size:13px;margin-top:14px}.admin{margin-top:28px}
-.admin button{font-size:13px;padding:10px}.status{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #eadfd2}.locked{opacity:.45}.complete{color:#32834d;font-weight:800}
+.hidden{display:none !important}.tiny{text-align:center;color:#6d596e;font-size:13px;margin-top:14px}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#19151b;color:white;padding:12px 17px;border-radius:999px;display:none;box-shadow:0 8px 25px #0008}
 .photo-note{font-size:14px;color:#6d596e;margin-top:10px}
+.waiting{text-align:center;font-size:18px;line-height:1.5}.spin{font-size:46px;display:inline-block;animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.master input{width:100%;padding:12px;margin-bottom:10px;border:1px solid #d9c9b8;border-radius:12px;font-size:16px}
+.master-toggle{background:none;border:0;color:#cbb6d6;font-size:12px;display:block;margin:24px auto 0;cursor:pointer;text-decoration:underline}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="pumpkins">🎃 🥳 🎃</div>
+
   <section id="welcome" class="card">
     <span class="badge">A VERY SPECIAL 75TH BIRTHDAY</span>
     <h1>Bonnie's<br>Birthday Quest</h1>
@@ -38,9 +42,13 @@ h1{font-size:34px;line-height:1.05;margin:8px 0 10px;color:var(--purple)} h2{fon
     <div class="progress"><div id="bar" class="bar"></div></div>
     <div id="clue" class="clue"></div>
     <div id="mission" class="mission"></div>
-    <p class="photo-note">📸 Take your selfie with one or both cats, then send it to Stacey!</p>
+    <p class="photo-note">📸 Take your selfie, then send it to Stacey!</p>
     <button id="complete" class="btn" onclick="completeStop()">📸 We Did It!</button>
-    <button id="next" class="btn dark hidden" onclick="nextStop()">🔓 Reveal Next Clue</button>
+    <div id="waiting" class="waiting hidden">
+      <div class="spin">🎃</div>
+      <p><b>Mission complete! 🎉</b><br>Waiting for Stacey to unlock your next clue…</p>
+      <p class="tiny">Keep this page open. Your next clue will appear here automatically.</p>
+    </div>
   </section>
 
   <section id="final" class="card hidden">
@@ -52,130 +60,132 @@ h1{font-size:34px;line-height:1.05;margin:8px 0 10px;color:var(--purple)} h2{fon
     <p style="text-align:center;font-size:22px">❤️ Love, Stacey</p>
   </section>
 
-  <section class="admin card">
-    <h2 style="font-size:18px">🎃 Quest Master</h2>
-    <p class="tiny" style="margin-top:0">For Stacey: use this to reset the demo on your phone.</p>
-    <button class="btn secondary" onclick="resetQuest()">Reset Quest</button>
+  <button class="master-toggle" onclick="toggleMaster()">Quest Master</button>
+
+  <section id="masterPanel" class="card master hidden">
+    <h2 style="font-size:20px">🔐 Quest Master</h2>
+    <div id="masterLogin">
+      <p class="tiny" style="margin-top:0;text-align:left">Stacey only: sign in to unlock Bonnie's clues.</p>
+      <input id="masterEmail" type="email" placeholder="Your email">
+      <input id="masterPassword" type="password" placeholder="Your password">
+      <button class="btn dark" onclick="masterLogin()">Sign In</button>
+      <button class="btn secondary" onclick="resetMasterPassword()">Forgot Password?</button>
+    </div>
+    <div id="masterControls" class="hidden">
+      <p>Unlocked clue: <strong id="clueNumber">—</strong> of 4</p>
+      <p id="bonnieStatus" class="tiny" style="text-align:left"></p>
+      <button class="btn" onclick="releaseNextClue()">🔓 Release Next Clue</button>
+      <button class="btn secondary" onclick="resetQuest()">↩️ Reset Quest to Clue 1</button>
+      <button class="btn secondary" onclick="masterLogout()">Sign Out</button>
+    </div>
+    <p id="masterMessage" class="tiny"></p>
   </section>
 </div>
 <div id="toast" class="toast"></div>
-<script src="https://www.gstatic.com/firebase/12.19.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebase/12.19.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebase/12.19.0/firebase-firestore-compat.js"></script> 
-    <script>
-   const firebaseConfig = {
- apiKey: "AIzaSyCVAbwDV1Tb_yvQr3YanP4CA9_Z0k9cfk8",
- authDomain: "bonnie-birthday-quest.firebaseapp.com",
-projectId: "bonnie-birthday-quest",
- appId: "1:21269898300:web:1e518b75e90c9a09c68f39"
-};
-firebase.initializeApp(firebaseConfig);
-  window.auth = firebase.auth();
-  window.db  = firebase.firestore();
-</script>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-  stops=[
+firebase.initializeApp({
+  apiKey: "AIzaSyCVAbwDV1Tb_yvQr3YanP4CA9_Z0k9cfk8",
+  authDomain: "bonnie-birthday-quest.firebaseapp.com",
+  projectId: "bonnie-birthday-quest",
+  appId: "1:21269898300:web:1e518b75e90c9a09c68f39"
+});
+const db = firebase.firestore();
+const $ = id => document.getElementById(id);
+
+const stops=[
  {badge:"STOP 1 • MEMORY LANE",title:"Camelot",clue:"Where friends and memories call home, where so many familiar faces roam. Your birthday adventure starts right here!",mission:"🏠 Go to Camelot and take a selfie with at least two people."},
  {badge:"STOP 2 • TREASURE HUNT",title:"Goodwill",clue:"One person's treasure is another person's delight. Find something funny, weird or completely ridiculous!",mission:"🛍️ Find the funniest thing you can. Take a selfie with it. You don't even have to buy it! 😂"},
  {badge:"STOP 3 • BIRTHDAY MEAL",title:"Twisted Lobster",clue:"You've laughed, you've hunted, and you've made it this far. Now it's time to sit down, relax and enjoy.",mission:"🥂 Have a birthday toast together. Have the waitress take a picture to celebrate 75 years of Bonnie!"},
- {badge:"STOP 4 • SWEET FINISH",title:"Your Final Stop",clue:"You've earned something SWEET. Your choice of what and where you get dessert.",mission:"🍦 Go your final dessert destination, choose something delicious, and take one last birthday selfie!"}
+ {badge:"STOP 4 • SWEET FINISH",title:"Your Final Stop",clue:"You've earned something SWEET. Your choice of what and where you get dessert.",mission:"🍦 Go to your final dessert destination, choose something delicious, and take one last birthday selfie!"}
 ];
-let current=0, done=[];
-function startQuest(){current=0;showStop()}
-function showStop(){
- document.getElementById('welcome').classList.add('hidden');
- document.getElementById('final').classList.add('hidden');
- document.getElementById('quest').classList.remove('hidden');
- const s=stops[current];
- badge.textContent=s.badge; title.textContent=s.title; clue.innerHTML=s.clue; mission.innerHTML=s.mission;
- bar.style.width=((current+1)/stops.length*100)+"%";
- complete.classList.remove('hidden'); next.classList.add('hidden');
+
+// Firestore "quest" doc: currentClue = clue Stacey unlocked (1-4), completed = last clue Bonnie finished (0-4)
+let questRef=null, state={currentClue:1,completed:0}, started=localStorage.getItem('bbqStarted')==='1';
+
+async function connect(){
+  try{
+    const snap=await db.collection('quest').limit(1).get();
+    if(snap.empty){showToast('Quest not set up yet');return}
+    questRef=snap.docs[0].ref;
+    questRef.onSnapshot(d=>{
+      const data=d.data()||{};
+      const prev=state.currentClue;
+      state.currentClue=data.currentClue??1; state.completed=data.completed??0;
+      if(started && state.currentClue>prev) showToast('🔓 New clue unlocked!');
+      render(); renderMaster();
+    });
+  }catch(e){console.error(e);showToast('Could not connect: '+e.message)}
 }
-function completeStop(){
- done[current]=true; complete.classList.add('hidden');
- if(current<stops.length-1){next.classList.remove('hidden');showToast("Mission complete! 🎉")}
- else {showToast("You did it! 🎂");setTimeout(()=>{quest.classList.add('hidden');final.classList.remove('hidden')},700)}
+
+function render(){
+  if(!started){$('welcome').classList.remove('hidden');$('quest').classList.add('hidden');$('final').classList.add('hidden');return}
+  $('welcome').classList.add('hidden');
+  if(state.completed>=stops.length){$('quest').classList.add('hidden');$('final').classList.remove('hidden');return}
+  $('final').classList.add('hidden');$('quest').classList.remove('hidden');
+  const n=Math.min(Math.max(state.currentClue,1),stops.length), s=stops[n-1];
+  $('badge').textContent=s.badge;$('title').textContent=s.title;$('clue').innerHTML=s.clue;$('mission').innerHTML=s.mission;
+  $('bar').style.width=(n/stops.length*100)+'%';
+  const doneHere=state.completed>=n;
+  $('complete').classList.toggle('hidden',doneHere);
+  $('waiting').classList.toggle('hidden',!doneHere);
 }
-function nextStop(){current++;showStop()}
-function resetQuest(){current=0;done=[];final.classList.add('hidden');quest.classList.add('hidden');welcome.classList.remove('hidden');showToast("Quest reset!")}
-function showToast(t){toast.textContent=t;toast.style.display="block";setTimeout(()=>toast.style.display="none",1800)}
-</script>
-  <div id="masterPanel" style="display:block !important; margin:30px auto;padding:20px;max-width:400px;border:2px solid #d4a843;border-radius:16px;font-family:Arial,sans-serif; color:#222; background:#fff;">">
-  <h2>🔐 Quest Master</h2> <style="margin:30px auto;padding:20px;max-width:400px;border:2px solid #d4a843;border-radius:16px;font-family:Arial,sans-serif;">
-  <p>Sign in to manage Bonnie's birthday quest.</p>
-  <input id="masterEmail" type="email" placeholder="Your email" style="width:95%;padding:10px;margin-bottom:10px;">
-  <input id="masterPassword" type="password" placeholder="Your password" style="width:95%;padding:10px;margin-bottom:10px;">
-  <button onclick="masterLogin()" style="padding:12px;">Sign In</button>
-    <button onclick="resetMasterPassword()" style=padding:12px;margin-top:8px;">
-    Forgot Password?
-    </button>
-  <div id="masterControls" style="display:none;margin-top:20px;">
-    <p>Current clue: <strong id="clueNumber">—</strong></p>
-    <button onclick="releaseNextClue()" style="padding:12px;">🔓 Release Next Clue</button>
-    <button onclick="masterLogout()" style="padding:12px;">Sign Out</button>
-  </div>
-  <p id="masterMessage"></p>
-</div>
-<script>
-async function masterLogin() {
-  try {
-    await firebase.auth().signInWithEmailAndPassword(
-      document.getElementById('masterEmail').value,
-      document.getElementById('masterPassword').value
-    );
-    document.getElementById('masterControls').style.display = 'block';
-    document.getElementById('masterMessage').textContent = 'Signed in!';
-    await loadClueNumber();
-  } catch (e) {
-    document.getElementById('masterMessage').textContent = 'Sign-in failed. Check your email and password.';
-  }
-}async function resetMasterPassword() {
-    alert (typeof window.firebase); 
-  const email = document.getElementById('masterEmail').value.trim();
-  if (!email) {
-    document.getElementById('masterMessage').textContent =
-      'Please enter your email address first.';
-    return;
-  }
-  try {
-    await firebase.auth().sendPasswordResetEmail(email);
-    document.getElementById('masterMessage').textContent =
-      'Password reset email sent! Check your inbox.';
-  } catch (e) {
-    document.getElementById('masterMessage').textContent =
-      'Could not send reset email: ' + e.message;
-  }
+
+function startQuest(){started=true;localStorage.setItem('bbqStarted','1');render()}
+
+async function completeStop(){
+  if(!questRef)return;
+  const n=Math.min(Math.max(state.currentClue,1),stops.length);
+  $('complete').disabled=true;
+  try{await questRef.update({completed:n});showToast(n<stops.length?'Mission complete! 🎉':'You did it! 🎂')}
+  catch(e){showToast('Could not save. Try again!')}
+  $('complete').disabled=false;
 }
-async function loadClueNumber() {
-  try {
-    const snap = await firebase.firestore().collection('quest').limit(1).get();
-    if (snap.empty) throw new Error('No quest document found.');
-    window.questDoc = snap.docs[0].ref;
-    document.getElementById('clueNumber').textContent =
-      snap.docs[0].data().currentClue ?? 1;
-  } catch (e) {
-    document.getElementById('masterMessage').textContent =
-      'Could not load quest: ' + e.message;
-  }
+
+function showToast(t){$('toast').textContent=t;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',2200)}
+
+// ---------- Quest Master (Stacey) ----------
+function toggleMaster(){$('masterPanel').classList.toggle('hidden')}
+function msg(t){$('masterMessage').textContent=t}
+firebase.auth().onAuthStateChanged(u=>{
+  $('masterLogin').classList.toggle('hidden',!!u);
+  $('masterControls').classList.toggle('hidden',!u);
+  if(u) renderMaster();
+});
+function renderMaster(){
+  $('clueNumber').textContent=state.currentClue;
+  $('bonnieStatus').textContent = state.completed>=state.currentClue
+    ? `✅ Bonnie finished clue ${state.completed}.` + (state.currentClue<stops.length?' Ready for the next one!':' Quest complete!')
+    : `⏳ Bonnie is working on clue ${state.currentClue}.`;
 }
-async function releaseNextClue() {
-  try {
-    const snap = await window.questDoc.get();
-    const current = snap.data().currentClue ?? 1;
-    await window.questDoc.update({currentClue: current + 1});
-    await loadClueNumber();
-    document.getElementById('masterMessage').textContent = 'Clue counter updated!';
-  } catch (e) {
-    document.getElementById('masterMessage').textContent =
-      'Could not update clue: ' + e.message;
-  }
+async function masterLogin(){
+  try{await firebase.auth().signInWithEmailAndPassword($('masterEmail').value.trim(),$('masterPassword').value);msg('Signed in!')}
+  catch(e){msg('Sign-in failed. Check your email and password.')}
 }
-async function masterLogout() {
-  await firebase.auth().signOut();
-  document.getElementById('masterControls').style.display = 'none';
-  document.getElementById('masterMessage').textContent = 'Signed out.';
+async function resetMasterPassword(){
+  const email=$('masterEmail').value.trim();
+  if(!email){msg('Please enter your email address first.');return}
+  try{await firebase.auth().sendPasswordResetEmail(email);msg('Password reset email sent! Check your inbox.')}
+  catch(e){msg('Could not send reset email: '+e.message)}
 }
+async function releaseNextClue(){
+  if(state.currentClue>=stops.length){msg('All clues are already unlocked.');return}
+  if(state.completed<state.currentClue && !confirm("Bonnie hasn't finished this stop yet. Unlock the next clue anyway?"))return;
+  try{await questRef.update({currentClue:state.currentClue+1});msg('Clue '+(state.currentClue+1)+' unlocked!')}
+  catch(e){msg('Could not update clue: '+e.message)}
+}
+async function resetQuest(){
+  if(!confirm('Reset the quest back to clue 1?'))return;
+  try{await questRef.update({currentClue:1,completed:0});msg('Quest reset to clue 1.')}
+  catch(e){msg('Could not reset: '+e.message)}
+}
+async function masterLogout(){await firebase.auth().signOut();msg('Signed out.')}
+
+connect();
 </script>
 </body>
 </html>
+
